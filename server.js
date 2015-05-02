@@ -1,6 +1,10 @@
 var express   = require("express"); 
-var mailer    = require('./mailer');   
+//var mailer    = require('./mailer');   
 var validator = require('validator'); 
+var rabbit    = require('rabbit.js'); 
+var ctx       = rabbit.createContext(); 
+var pub       = ctx.socket('PUSH');  
+
 var app       = express(); 
 var port      = process.env.SC_APP_PORT || 8080; 
 
@@ -17,18 +21,19 @@ app.get('/:email', function(req,res){
     if( ! validator.isEmail(email) ) 
         return res.send('this is not valid email'); 
 
-    mailer({
-        email: email, 
-        subject: 'hello', 
-        text: 'hello world', 
-        html: '<h1>hello world</h2>' 
-    }, function(err, response){
-        if(err) return res.send(err); 
-        res.send('email is sent to ' + email + response.message);  
-    });    
+    pub.write(JSON.stringify({email: email}), 'utf8');
+
+    res.send('your email is sent '); 
 
 }); 
 
-app.listen(port);  
+ctx.on('error', function () { 
+    console.log('could not connect to the message broker');  
+});
 
-console.log('app is listening on a port: ', port); 
+ctx.on('ready', function() {
+    pub.connect('email', function() {
+        app.listen(port);  
+        console.log('app is listening on a port: ', port); 
+    });
+});

@@ -12,6 +12,7 @@
   "dependencies": {
     "express": "~4.12.3",
     "nodemailer": "~0.7.0",
+    "rabbit.js": "^0.4.2",
     "validator": "^3.39.0"
   }
 }
