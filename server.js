@@ -1,5 +1,6 @@
 var express   = require("express"); 
 var mailer    = require('./mailer');   
+var validator = require('validator'); 
 var app       = express(); 
 var port      = process.env.SC_APP_PORT || 8080; 
 
@@ -13,9 +14,9 @@ app.get('/:email', function(req,res){
 
     var email = req.params.email; 
     
-    if( ! email.match('@') ) 
+    if( ! validator.isEmail(email) ) 
         return res.send('this is not valid email'); 
-    
+
     mailer({
         email: email, 
         subject: 'hello', 
