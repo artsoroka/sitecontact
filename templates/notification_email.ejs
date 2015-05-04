@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+  </head>
+  <body>
+    <h1>Здравствуйте</h1>
+    <p>Вы получи новое сообщение отправленное через форму с сайта <a href="<%= refer %>"><%= refer %></a></p>
+    <p>Автор сообщения заполнил следующие поля: </p>
+    <ul>
+      <% for(property in message) { %>
+      <li><b><%= property %></b> : <%= message[property]%></li>
+      <% } %>
+    </ul>
+    <hr> 
+    Это извещение было направлено Вам как зарегистрированному пользователю. Если оно пришло к Вам по ошибке, просим Вас убрать форму с сайта <%= refer %> или <a href="http://sitecontact.ru/">отписаться от оповещений</a>  
+</body>
+</html>
