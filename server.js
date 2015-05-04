@@ -7,16 +7,26 @@ var redis     = require('redis').createClient();
 var app       = express(); 
 var port      = process.env.SC_APP_PORT || 8080; 
 
+var bodyParser = require('body-parser'); 
+var extend     = require('util')._extend; 
+
 app.use(express.static(__dirname + '/public')); 
+
+app.use(bodyParser.urlencoded({ extended: false })); 
+app.use(bodyParser.json()); 
 
 app.get('/', function(req, res){
     res.send('hello'); 
 }); 
 
-app.get('/:email', function(req,res){
+app.post('/:email', function(req,res){
 
-    var email = req.params.email; 
+    res.header("Access-Control-Allow-Origin", "*"); 
     
+    var email   = req.params.email; 
+    var message = req.body; 
+    extend(message, {_email: email, _ip: req.ip}); 
+   
     if( ! validator.isEmail(email) ) 
         return res.send('this is not valid email'); 
     
@@ -24,7 +34,7 @@ app.get('/:email', function(req,res){
 	if( err ) return res.send('could not connect to the database'); 
         if( ! record ) return res.send('email is not registered'); 
         
-        pub.write(JSON.stringify({email:email}, 'utf8')); 
+        pub.write(JSON.stringify(message, 'utf8')); 
 	res.send('your email is sent'); 
 
     });
