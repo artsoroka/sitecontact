@@ -3,19 +3,21 @@ var mailer   = require('./lib/mailer');
 var fs 		 = require('fs'); 
 var ejs 	 = require('ejs'); 
 var template = fs.readFileSync('./templates/notification_email.ejs'); 
+var useragent = require('express-useragent'); 
 
 var sendMessage = function(data, task){
-
+	var ua   = useragent.parse(data.meta._useragent); 
 	var html = ejs.render(template.toString(), {
 		title: 'Новое сообщение с сайта',
 		refer: data.meta._referer, 
-		message: data.message
+		message: data.message, 
+		useragent: {browser: ua.Browser, os: ua.OS} 
 	}); 
 	
     mailer({
         email: data.meta._email, 
-        subject: 'hello ', 
-        text: 'hello world', 
+        subject: 'Новое сообщение с сайта', 
+        text: 'У вас новое сообщение',  
         html: html,  
     }, function(err, response){
         if(err) return console.log('MAILER: ', err);  

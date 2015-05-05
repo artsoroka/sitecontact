@@ -28,9 +28,10 @@ app.post('/:email', function(req,res){
     extend(message, {
         _email: email, 
         _ip: req.ip, 
-        _referer: req.headers['referer']
+        _referer: req.headers['referer'], 
+	_useragent: req.headers['user-agent']
     }); 
-   
+    
     if( ! validator.isEmail(email) ) 
         return res.send('this is not valid email'); 
     
