@@ -16,6 +16,11 @@
       <% } %>
     </ul>
     <small>Форма была отправлена из браузера <%= useragent.browser %> установленного на копьютере с операционной системой <%= useragent.os %></small>
+    <small>Запрос поступил с адреса <%= ipAddress %></small>
+    <br>
+    <% if(geolocation) { %>
+      <img src="http://maps.googleapis.com/maps/api/staticmap?center=<%= geolocation.lat  %>,<%= geolocation.lng  %>&zoom=8&size=200x200&sensor=false">
+    <% } %>
     <hr> 
     Это извещение было направлено Вам как зарегистрированному пользователю. Если оно пришло к Вам по ошибке, просим Вас убрать форму с сайта <%= refer %> или <a href="http://sitecontact.ru/">отписаться от оповещений</a>  
 </body>

@@ -1,17 +1,31 @@
-var context  = require('rabbit.js').createContext();
-var mailer   = require('./lib/mailer'); 
-var fs 		 = require('fs'); 
-var ejs 	 = require('ejs'); 
-var template = fs.readFileSync('./templates/notification_email.ejs'); 
+var context   = require('rabbit.js').createContext();
+var mailer    = require('./lib/mailer'); 
+var fs 	      = require('fs'); 
+var ejs       = require('ejs'); 
+var template  = fs.readFileSync('./templates/notification_email.ejs'); 
 var useragent = require('express-useragent'); 
+var request   = require('request'); 
 
 var sendMessage = function(data, task){
+    var coordinates = null; 
+    request.get('http://freegeoip.net/json/' + data.meta._ip, function(err, response, body){
+
+      if( ! err ){
+	var geoData = JSON.parse(body);
+	coordinates = {
+		lat: geoData.latitude,  
+		lng: geoData.longitude
+	} 
+      } 
+        
 	var ua   = useragent.parse(data.meta._useragent); 
 	var html = ejs.render(template.toString(), {
 		title: 'Новое сообщение с сайта',
 		refer: data.meta._referer, 
 		message: data.message, 
-		useragent: {browser: ua.Browser, os: ua.OS} 
+		useragent: {browser: ua.Browser, os: ua.OS}, 
+		ipAddress: data.meta._ip, 
+		geolocation: coordinates 
 	}); 
 	
     mailer({
@@ -24,7 +38,7 @@ var sendMessage = function(data, task){
         task.ack(); 
         console.log('email is sent to ' + data.meta._email + response.message);  
     });    
-
+  }); 
 }
 
 var parseMessage = function(str){
