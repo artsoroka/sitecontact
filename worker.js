@@ -6,6 +6,8 @@ var template  = fs.readFileSync('./templates/notification_email.ejs');
 var useragent = require('express-useragent'); 
 var request   = require('request'); 
 
+var redis     = require('redis').createClient(); 
+
 var sendMessage = function(data, task){
     var coordinates = null; 
     request.get('http://freegeoip.net/json/' + data.meta._ip, function(err, response, body){
@@ -36,6 +38,7 @@ var sendMessage = function(data, task){
     }, function(err, response){
         if(err) return console.log('MAILER: ', err);  
         task.ack(); 
+	redis.incr(data.meta._email); 
         console.log('email is sent to ' + data.meta._email + response.message);  
     });    
   }); 
