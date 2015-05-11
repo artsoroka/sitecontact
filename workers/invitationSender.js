@@ -10,7 +10,7 @@ var Invitations = new Datastore({filename: 'invitations.db', autoload: true});
 var sendInvitation = function(data, task){
 	
 		
-	var url = ['https://webforms-brixton.c9.io/signup', data.confUri].join('/'); 
+	var url = ['http://sitecontact.ru/signup', data.confUri].join('/'); 
 			
 		
 	var html = ejs.render(template.toString(), {

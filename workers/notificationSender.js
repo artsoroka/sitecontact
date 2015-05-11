@@ -75,7 +75,7 @@ var parseMessage = function(str){
 
 context.on('ready', function(){
 	sub = context.socket('WORKER');
-	sub.connect('signup', function(){
+	sub.connect('email', function(){
 		
 		sub.on('data', function(msg) {
 			console.log('RECIEVED: ', msg.toString());  

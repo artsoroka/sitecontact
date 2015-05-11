@@ -11,8 +11,7 @@
   {
     "name"       : "notification worker",
     "script"     : "./workers/notificationSender.js",
-    "instances"  : 2,
-    "exec_mode"  : "cluster_mode",
+    "merge_logs" : true, 
     "error_file" : "./logs/notificationSender-err.log",
     "out_file"   : "./logs/notificationSender-out.log",
     "pid_file"   : "./logs/notification.pid"
