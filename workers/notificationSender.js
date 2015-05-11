@@ -1,8 +1,8 @@
 var context   = require('rabbit.js').createContext();
-var mailer    = require('./lib/mailer'); 
+var mailer    = require(__dirname + '/../lib/mailer'); 
 var fs 	      = require('fs'); 
 var ejs       = require('ejs'); 
-var template  = fs.readFileSync('./templates/notification_email.ejs'); 
+var template  = fs.readFileSync(__dirname + '/../templates/notification_email.ejs'); 
 var useragent = require('express-useragent'); 
 var request   = require('request'); 
 
