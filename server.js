@@ -2,12 +2,15 @@ var express     = require("express");
 var validator   = require('validator'); 
 var rabbit      = require('rabbit.js'); 
 var ctx         = rabbit.createContext(); 
-var pub         = ctx.socket('PUSH');  
+var pub         = ctx.socket('PUSH'); 
+var signup      = ctx.socket('PUSH'); 
 var redis       = require('redis').createClient(); 
 var app         = express(); 
 var port        = process.env.SC_APP_PORT || 8080; 
 var bodyParser  = require('body-parser'); 
 var extend      = require('util')._extend; 
+var Datastore   = require('nedb'); 
+var Invitations = new Datastore({filename: 'invitations.db', autoload: true}); 
 
 app.use(express.static(__dirname + '/public')); 
 
@@ -16,6 +19,31 @@ app.use(bodyParser.json());
 
 app.get('/', function(req, res){
     res.send('hello'); 
+}); 
+
+app.get('/signup/:confirmationKey', function(req, res){
+    Invitations.findOne({confUri: req.params.confirmationKey}, function(err, doc){
+        if( err || ! doc) return res.send('invalid confirmation key');  
+        
+        redis.set(doc.email, 0, function(){
+            res.send('your account is now active'); 
+        });
+        
+    }); 
+});
+
+app.post('/signup', function(req, res){
+    var email = req.body.email; 
+     
+    if( ! validator.isEmail(email) ) 
+        return res.send('this is not valid email'); 
+    
+    signup.write(JSON.stringify({
+        email: email
+    }, 'utf8'));
+    
+    res.send('invitation is sent on your email address'); 
+    
 }); 
 
 app.post('/:email', function(req,res){
@@ -29,7 +57,7 @@ app.post('/:email', function(req,res){
         _email: email, 
         _ip: req.ip, 
         _referer: req.headers['referer'], 
-	_useragent: req.headers['user-agent']
+	    _useragent: req.headers['user-agent']
     }); 
     
     if( ! validator.isEmail(email) ) 
@@ -55,7 +83,9 @@ ctx.on('error', function () {
 
 ctx.on('ready', function() {
     pub.connect('email', function() {
-        app.listen(port);  
-        console.log('app is listening on a port: ', port); 
+        signup.connect('signup', function(){
+            app.listen(port);  
+            console.log('app is listening on a port: ', port);     
+        });
     });
 });
