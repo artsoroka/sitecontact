@@ -13,12 +13,14 @@ var Datastore   = require('nedb');
 var Invitations = new Datastore({filename: 'invitations.db', autoload: true}); 
 
 app.use(express.static(__dirname + '/public')); 
+app.set('view engine', 'ejs'); 
+app.set('views', __dirname + '/views'); 
 
 app.use(bodyParser.urlencoded({ extended: false })); 
 app.use(bodyParser.json()); 
 
 app.get('/', function(req, res){
-    res.send('hello'); 
+    res.render('mainpage');  
 }); 
 
 app.get('/signup/:confirmationKey', function(req, res){
@@ -26,7 +28,10 @@ app.get('/signup/:confirmationKey', function(req, res){
         if( err || ! doc) return res.send('invalid confirmation key');  
         
         redis.set(doc.email, 0, function(){
-            res.send('your account is now active'); 
+            res.render('status',{
+                status: 'Адрес подтверждён!', 
+                message: 'Вы успешно подтвердили адрес электронной почты: форма активна и готова к работе'
+            });  
         });
         
     }); 
@@ -36,13 +41,19 @@ app.post('/signup', function(req, res){
     var email = req.body.email; 
      
     if( ! validator.isEmail(email) ) 
-        return res.send('this is not valid email'); 
-    
+        return res.status(400).render('status', {
+            status: 'Произошла ощибка', 
+            message: 'Неправильный формат адреса электронной почты'
+        }); 
+
     signup.write(JSON.stringify({
         email: email
     }, 'utf8'));
     
-    res.send('invitation is sent on your email address'); 
+    res.render('status', {
+        status: 'Почти готово!', 
+        message: 'Мы отправили Вам на почту тестовое сообщение. В нём вы найдёте ссылку для подтвержения владения указанным почтовым адресом '
+    }); 
     
 }); 
 
