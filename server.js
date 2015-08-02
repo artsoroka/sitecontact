@@ -6,7 +6,8 @@ var pub         = ctx.socket('PUSH');
 var signup      = ctx.socket('PUSH'); 
 var redis       = require('redis').createClient(); 
 var app         = express(); 
-var port        = process.env.SC_APP_PORT || 8080; 
+var config      = require('./config'); 
+var db          = require('./lib/mysql')(config.db); 
 var bodyParser  = require('body-parser'); 
 var extend      = require('util')._extend; 
 var Datastore   = require('nedb'); 
@@ -24,16 +25,22 @@ app.get('/', function(req, res){
 }); 
 
 app.get('/signup/:confirmationKey', function(req, res){
-    Invitations.findOne({confUri: req.params.confirmationKey}, function(err, doc){
-        if( err || ! doc) return res.send('invalid confirmation key');  
-        
-        redis.set(doc.email, 0, function(){
+
+    db.query('SELECT id, email FROM emails WHERE confirmation_key = ?', 
+    [req.params.confirmationKey], 
+    function(err, record){
+        if( err || ! record || ! record.length )
+            return res.render('status', {
+                status: 'Произошла ошибка', 
+                message: 'Код подтверждения не найден'
+            }); 
+
+        redis.set(record[0].email, 0, function(){
             res.render('status',{
                 status: 'Адрес подтверждён!', 
                 message: 'Вы успешно подтвердили адрес электронной почты: форма активна и готова к работе'
             });  
         });
-        
     }); 
 });
 
@@ -95,8 +102,8 @@ ctx.on('error', function () {
 ctx.on('ready', function() {
     pub.connect('email', function() {
         signup.connect('signup', function(){
-            app.listen(port);  
-            console.log('app is listening on a port: ', port);     
+            app.listen(config.app.port);  
+            console.log('app is listening on a port: ', config.app.port);     
         });
     });
 });

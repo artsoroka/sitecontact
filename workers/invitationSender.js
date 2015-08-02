@@ -4,8 +4,8 @@ var fs 	        = require('fs');
 var ejs         = require('ejs'); 
 var template    = fs.readFileSync(__dirname + '/../templates/invitation_email.ejs'); 
 var random      = require(__dirname + '/../lib/random');
-var Datastore   = require('nedb'); 
-var Invitations = new Datastore({filename: 'invitations.db', autoload: true}); 
+var config      = require('../config'); 
+var db 			= require('../lib/mysql')(config.db); 
 
 var sendInvitation = function(data, task){
 	
@@ -42,16 +42,15 @@ context.on('ready', function(){
 					email: data.email, 
 					confUri: confUri
 				}; 
-				
-				Invitations.insert(newUser, function(err, newDoc){
+				db.query('INSERT INTO emails SET ?', {
+					email: data.email, 
+					confirmation_key: confUri
+				}, function(err, info){
 					if( err ) return console.log('NEW DB RECORD ERR: ', err); 
-					
 					sendInvitation(newUser, sub); 	 		
-					
-				});
+				}); 
 			}); 
-		
-			
+
 		});
 	}); 
 }); 
