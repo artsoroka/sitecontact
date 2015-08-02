@@ -90,7 +90,10 @@ app.post('/:email', function(req,res){
         if(message._redirect)
             return res.redirect(message._redirect); 
         
-        res.send('your email is sent'); 
+        res.render('status', {
+            status: 'Спасибо!', 
+            message: 'Ваше сообщение отправлено'
+        }) 
 
     });
 }); 
