@@ -15,5 +15,14 @@
     "error_file" : "./logs/notificationSender-err.log",
     "out_file"   : "./logs/notificationSender-out.log",
     "pid_file"   : "./logs/notification.pid"
+  },
+
+  {
+    "name"       : "invitation sender",
+    "script"     : "./workers/invitationSender.js",
+    "merge_logs" : true, 
+    "error_file" : "./logs/invitationSender-err.log",
+    "out_file"   : "./logs/invitationSender-out.log",
+    "pid_file"   : "./logs/invitation.pid"
   }]
 }
