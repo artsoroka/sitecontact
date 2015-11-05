@@ -17,9 +17,9 @@
     "hiredis": "^0.3.0",
     "mysql": "^2.8.0",
     "nedb": "^1.1.2",
-    "node-random": "^1.0.0",
     "nodemailer": "~0.7.0",
     "rabbit.js": "^0.4.2",
+    "random-string": "^0.1.2",
     "redis": "^0.12.1",
     "request": "^2.55.0",
     "validator": "^3.39.0"
